@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "789210534099",
+    "project_id": "gestion-empleados-uf",
+    "storage_bucket": "gestion-empleados-uf.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:789210534099:android:f0280ae20544067081c426",
+        "android_client_info": {
+          "package_name": "com.example.gestor_empleados"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBa-rTAtb8crGgtHvYdzRY74auImG83Bac"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
