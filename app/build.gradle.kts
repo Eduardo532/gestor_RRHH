@@ -1,8 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    // Add the Google services Gradle plugin
     id("com.google.gms.google-services")
+    alias(libs.plugins.kotlin.compose)
 }
 
 android {
@@ -12,11 +12,13 @@ android {
     defaultConfig {
         applicationId = "com.example.gestor_empleados"
         minSdk = 33
-        targetSdk = 35
+        targetSdk = 34
         versionCode = 1
         versionName = "0.1"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables {
+            useSupportLibrary = true
+        }
     }
 
     buildTypes {
@@ -35,30 +37,49 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
 }
 
 dependencies {
-
+    // Dependencias básicas y de prueba
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    implementation(libs.androidx.activity)
-    implementation(libs.androidx.constraintlayout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    // Import the Firebase BoM
-    implementation(platform("com.google.firebase:firebase-bom:34.3.0"))
+    implementation("androidx.compose.material3:material3-android:1.4.0")
 
+    // BoM para Compose
+    implementation(platform("androidx.compose:compose-bom:2024.06.00")) // BoM actualizada
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-graphics")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.activity:activity-compose:1.9.0") // Librería actualizada
 
-    //dependencias firebase
-    implementation("com.google.firebase:firebase-analytics")
-    implementation("com.google.firebase:firebase-storage-ktx:21.0.2")
-    implementation("com.google.firebase:firebase-storage-ktx:21.0.2")
-    implementation("com.google.firebase:firebase-auth-ktx:23.2.1")
-    implementation("com.google.firebase:firebase-messaging:25.0.1")
-    // otras dependencias
-    implementation("androidx.biometric:biometric-ktx:1.4.0-alpha02")
+    // Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:33.1.1")) // BoM actualizada
+    implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("com.google.firebase:firebase-storage-ktx")
+    implementation("com.google.firebase:firebase-messaging")
+
+    // Arquitectura y Navegación
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.2") // Librería actualizada
+    implementation("androidx.navigation:navigation-compose:2.7.7") // Librería actualizada
+
+    // Biometría y Geolocalización
+    implementation("androidx.biometric:biometric-ktx:1.2.0-alpha05")
     implementation("com.google.android.gms:play-services-location:21.3.0")
+
+    // Dependencias para pruebas y previews de Compose
+    androidTestImplementation(platform("androidx.compose:compose-bom:2024.06.00"))
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    debugImplementation("androidx.compose.ui:ui-tooling")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
