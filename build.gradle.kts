@@ -18,7 +18,7 @@ sonarqube {
         property (".host.url", "http://localhost:9000")
 
         // 3. Token de Seguridad (para autenticación)
-        property (".token", "sqp_465b1778c383c949f2424276baca3192b9f7dc54") // REEMPLAZA ESTE VALOR
+        property (".token", "sqp_f45fb603c1ff3e4e83ab7440a0bbde650728e4ff") // REEMPLAZA ESTE VALOR
 
         // 4. Ubicación de los archivos fuente (necesario para proyectos Android/Kotlin)
         // Esto le dice a SonarQube dónde buscar el código a analizar

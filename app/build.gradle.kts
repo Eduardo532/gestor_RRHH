@@ -53,6 +53,9 @@ dependencies {
 
     implementation("androidx.compose.material3:material3-android:1.4.0")
 
+    implementation("androidx.fragment:fragment-ktx:1.8.1")
+    implementation("androidx.appcompat:appcompat:1.7.0")
+
     // BoM para Compose
     implementation(platform("androidx.compose:compose-bom:2024.06.00")) // BoM actualizada
     implementation("androidx.compose.ui:ui")

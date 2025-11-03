@@ -12,24 +12,19 @@ import com.example.gestor_empleados.viewmodel.LoginViewModel
 
 @Composable
 fun LoginScreen(onLoginSuccess: () -> Unit) {
-    // Obtenemos una instancia del ViewModel
     val viewModel: LoginViewModel = viewModel()
 
-    // Observamos el estado del ViewModel. Cada vez que cambie, la UI se "recompondrá"
     val uiState by viewModel.uiState.collectAsState()
 
-    // Variables para guardar lo que el usuario escribe en los campos de texto
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    // Este efecto se ejecuta solo cuando uiState.loginExitoso cambia a true
     LaunchedEffect(uiState.loginExitoso) {
         if (uiState.loginExitoso) {
-            onLoginSuccess() // Llamamos a la función para navegar a la siguiente pantalla
+            onLoginSuccess()
         }
     }
 
-    // Aquí definimos la apariencia de la pantalla
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.Center,
@@ -41,7 +36,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text("Email (RUT de prueba)") },
+            label = { Text("RUT") },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -55,7 +50,6 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Mostramos el mensaje de error si existe
         uiState.error?.let {
             Text(text = it, color = MaterialTheme.colorScheme.error)
             Spacer(modifier = Modifier.height(8.dp))
@@ -63,7 +57,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
 
         Button(
             onClick = { viewModel.login(email, password) },
-            enabled = !uiState.isLoading, // El botón se deshabilita mientras carga
+            enabled = !uiState.isLoading,
             modifier = Modifier.fillMaxWidth()
         ) {
             if (uiState.isLoading) {
