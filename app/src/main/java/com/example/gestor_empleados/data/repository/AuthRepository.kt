@@ -16,6 +16,17 @@ class AuthRepository{
         }
     }
 
+    fun getCurrentUserId(): String? {
+        return auth.currentUser?.uid
+    }
+
+    fun getCurrentUserEmail(): String? {
+        return auth.currentUser?.email
+    }
+
+    fun logout() {
+        auth.signOut()
+    }
 
 
 
