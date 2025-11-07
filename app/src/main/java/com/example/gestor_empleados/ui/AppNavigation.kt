@@ -4,15 +4,15 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.gestor_empleados.ui.screens.historial.HistorialScreen
 import com.example.gestor_empleados.ui.screens.home.HomeScreen
 import com.example.gestor_empleados.ui.screens.login.LoginScreen
-
-// Pantalla de Home temporal
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "login") {
+
         composable("login") {
             LoginScreen(onLoginSuccess = {
                 navController.navigate("home") {
@@ -20,9 +20,23 @@ fun AppNavigation() {
                 }
             })
         }
+
         composable("home") {
-            HomeScreen()
+            HomeScreen(
+                // 1. Añadimos la acción para navegar al historial
+                onNavigateToHistorial = {
+                    navController.navigate("historial")
+                }
+            )
         }
-        // Aquí añadirás más composable() para las otras pantallas
+
+        // --- 2. AÑADE ESTA NUEVA RUTA ---
+        composable("historial") {
+            HistorialScreen(
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
     }
 }
