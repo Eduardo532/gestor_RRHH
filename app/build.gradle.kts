@@ -55,6 +55,7 @@ dependencies {
 
     implementation("androidx.fragment:fragment-ktx:1.8.1")
     implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("androidx.compose.material:material-icons-extended-android")
 
     // BoM para Compose
     implementation(platform("androidx.compose:compose-bom:2024.06.00")) // BoM actualizada

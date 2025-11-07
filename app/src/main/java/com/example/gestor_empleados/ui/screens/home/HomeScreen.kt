@@ -19,32 +19,30 @@ import com.example.gestor_empleados.utils.BiometricAuth
 import com.example.gestor_empleados.utils.LocationManager
 import com.example.gestor_empleados.viewmodel.HomeViewModel
 import com.example.gestor_empleados.viewmodel.HomeUiState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.List
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
+fun HomeScreen(viewModel: HomeViewModel = viewModel(),
+               onNavigateToHistorial: () -> Unit) {
 
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    // --- INICIO DE LA NUEVA LÓGICA ---
 
-    // 1. Helper de Biometría
     val biometricAuth = BiometricAuth(context as FragmentActivity)
 
-    // 2. Helper de Ubicación
     val locationManager = LocationManager(context)
 
-    // 3. Función que se llamará solo si la biometría es exitosa
     val onBiometricSuccess = {
         viewModel.marcarAsistencia()
     }
 
-    // 4. Launcher para pedir permisos de GPS
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true) {
-            // Permiso concedido, AHORA mostramos la huella
+
             biometricAuth.showBiometricPrompt(
                 title = "Verificar Asistencia",
                 subtitle = "Confirme su identidad para marcar",
@@ -54,12 +52,10 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                 }
             )
         } else {
-            // Permiso denegado
             Toast.makeText(context, "Se requiere permiso de ubicación para marcar", Toast.LENGTH_LONG).show()
         }
     }
 
-    // --- FIN DE LA NUEVA LÓGICA ---
 
     HandleUiState(uiState, viewModel)
 
@@ -68,6 +64,14 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
+        Button(onClick = onNavigateToHistorial) {
+            Icon(Icons.Default.List, contentDescription = "Ver Historial")
+            Spacer(Modifier.width(8.dp))
+            Text("Ver Mi Historial")
+        }
+
+        Spacer(Modifier.height(32.dp))
         Text("Control de Asistencia", style = MaterialTheme.typography.headlineMedium)
         Spacer(Modifier.height(16.dp))
         Text("Presione el botón para marcar su entrada o salida.")
@@ -78,9 +82,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
         } else {
             Button(
                 onClick = {
-                    // --- LÓGICA DE CLICK REFACTORIZADA ---
                     if (locationManager.hasLocationPermission()) {
-                        // 1. Si ya tenemos permiso, mostramos la huella
                         biometricAuth.showBiometricPrompt(
                             title = "Verificar Asistencia",
                             subtitle = "Confirme su identidad para marcar",
@@ -90,8 +92,6 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                             }
                         )
                     } else {
-                        // 2. Si no tenemos permiso, lo pedimos.
-                        // El launcher se encargará de llamar a la huella si el permiso se concede.
                         permissionLauncher.launch(
                             arrayOf(
                                 Manifest.permission.ACCESS_FINE_LOCATION,
