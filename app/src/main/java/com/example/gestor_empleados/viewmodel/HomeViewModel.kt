@@ -1,13 +1,11 @@
 package com.example.gestor_empleados.viewmodel
 
 import android.app.Application
-//import androidx.fragment.app.FragmentActivity // <-- YA NO SE NECESITA
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.gestor_empleados.data.model.Asistencia
-import com.example.gestor_empleados.data.repository.AsistenciaRepository
+import com.example.gestor_empleados.data.model.Attendance
+import com.example.gestor_empleados.data.repository.AttendanceRepository
 import com.example.gestor_empleados.data.repository.AuthRepository
-//import com.example.gestor_empleados.utils.BiometricAuth // <-- YA NO SE NECESITA AQUÍ
 import com.example.gestor_empleados.utils.LocationManager
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,54 +16,51 @@ import kotlinx.coroutines.launch
 data class HomeUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
-    val marcajeExitoso: Boolean = false
+    val isAttendanceMarked: Boolean = false
 )
 
 class HomeViewModel(
     application: Application,
     private val locationManager: LocationManager = LocationManager(application),
     private val authRepo: AuthRepository = AuthRepository(),
-    private val asistenciaRepo: AsistenciaRepository = AsistenciaRepository()
+    private val attendanceRepo: AttendanceRepository = AttendanceRepository()
 
 ) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState = _uiState.asStateFlow()
 
-    // --- LÓGICA DE MARCADO SIMPLIFICADA ---
-    // La Vista (HomeScreen) se encargará de la huella.
-    // El ViewModel solo se encarga de los datos.
-    fun marcarAsistencia() {
+    fun markAttendance() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null, marcajeExitoso = false) }
+            _uiState.update { it.copy(isLoading = true, error = null, isAttendanceMarked = false) }
 
-            // 1. Obtener Ubicación (ya tenemos permiso, la Vista lo comprobó)
+            // Obtener Ubicación
             val location = locationManager.getCurrentLocation()
             if (location == null) {
                 _uiState.update { it.copy(isLoading = false, error = "No se pudo obtener la ubicación. Revise permisos y GPS.") }
                 return@launch
             }
 
-            // 2. Guardar el registro
+            // Guardar el registro
             val userId = authRepo.getCurrentUserId()
             if (userId == null) {
                 _uiState.update { it.copy(isLoading = false, error = "Error de usuario. Vuelva a iniciar sesión.") }
                 return@launch
             }
 
-            val rutUsuario = authRepo.getCurrentUserEmail()?.split("@")?.get(0) ?: "SIN_RUT"
+            val userRut = authRepo.getCurrentUserEmail()?.split("@")?.get(0) ?: "SIN_RUT"
 
-            val nuevoMarcaje = Asistencia(
+            val newChekIn = Attendance(
                 userId = userId,
-                rut = rutUsuario,
+                rut = userRut,
                 timestamp = Timestamp.now(),
-                latitud = location.latitude,
-                longitud = location.longitude
+                latitude = location.latitude,
+                longitude = location.longitude
             )
 
-            val resultado = asistenciaRepo.registrarAsistencia(nuevoMarcaje)
-            resultado.onSuccess {
-                _uiState.update { it.copy(isLoading = false, marcajeExitoso = true) }
+            val result = attendanceRepo.registerAttendance(newChekIn)
+            result.onSuccess {
+                _uiState.update { it.copy(isLoading = false, isAttendanceMarked = true) }
             }.onFailure { exception ->
                 _uiState.update {
                     it.copy(isLoading = false, error = "Error al guardar: ${exception.message}")
@@ -74,7 +69,7 @@ class HomeViewModel(
         }
     }
 
-    fun errorMostrado() {
+    fun clearError() {
         _uiState.update { it.copy(error = null) }
     }
 }
