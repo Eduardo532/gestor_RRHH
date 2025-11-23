@@ -15,9 +15,10 @@ data class HistorialUiState(
     val asistencias: List<Asistencia> = emptyList()
 )
 
-class HistorialViewModel : ViewModel() {
+class HistorialViewModel(
+    private val asistenciaRepo: AsistenciaRepository = AsistenciaRepository()
+): ViewModel() {
 
-    private val asistenciaRepo = AsistenciaRepository()
 
     private val _uiState = MutableStateFlow(HistorialUiState())
     val uiState = _uiState.asStateFlow()
