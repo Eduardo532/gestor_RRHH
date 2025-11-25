@@ -4,10 +4,11 @@ import com.example.gestor_empleados.data.model.Attendance
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.tasks.await
+import com.example.gestor_empleados.utils.Constants
 
 class AttendanceRepository {
     private val db = FirebaseFirestore.getInstance()
-    private val attendanceCollection = db.collection("asistencia")
+    private val attendanceCollection = db.collection(Constants.COLECCIONS_ATTENDANCE)
 
     private val authRepo = AuthRepository()
 
