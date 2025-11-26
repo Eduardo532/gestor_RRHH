@@ -4,7 +4,7 @@ import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 
-class BiometricAuthManager(private val activity: FragmentActivity) {
+class BiometricAuth(private val activity: FragmentActivity) {
 
     fun showBiometricPrompt(
         title: String,

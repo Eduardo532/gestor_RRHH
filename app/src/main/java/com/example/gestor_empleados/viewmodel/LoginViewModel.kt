@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class LoginUiState(
-    val isloginSuccessful: Boolean = false,
+    val loginExitoso: Boolean = false,
     val error: String? = null,
     val isLoading: Boolean = false
 )
@@ -21,18 +21,18 @@ class LoginViewModel(
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState = _uiState.asStateFlow()
 
-    fun login(rut: String, password: String) {
+    fun login(rut: String, contrasena: String) {
         _uiState.update { it.copy(isLoading = true, error = null) }
 
-        val cleanRut = rut.replace(".", "").replace(" ", "")
+        val rutLimpio = rut.replace(".", "").replace(" ", "")
 
-        val fakeEmail = "$cleanRut@gestor.app"
+        val emailFalso = "$rutLimpio@gestor.app"
 
         viewModelScope.launch {
-            val result = authRepository.login(fakeEmail, password)
+            val resultado = authRepository.login(emailFalso, contrasena)
 
-            result.onSuccess {
-                _uiState.update { it.copy(isLoading = false, isloginSuccessful = true) }
+            resultado.onSuccess {
+                _uiState.update { it.copy(isLoading = false, loginExitoso = true) }
             }.onFailure { exception ->
                 _uiState.update {
                     it.copy(

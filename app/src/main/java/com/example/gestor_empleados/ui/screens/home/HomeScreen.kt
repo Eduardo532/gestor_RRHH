@@ -1,6 +1,7 @@
 package com.example.gestor_empleados.ui.screens.home
 
 import android.Manifest
+import android.content.Context
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -14,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.gestor_empleados.utils.BiometricAuthManager
+import com.example.gestor_empleados.utils.BiometricAuth
 import com.example.gestor_empleados.utils.LocationManager
 import com.example.gestor_empleados.viewmodel.HomeViewModel
 import com.example.gestor_empleados.viewmodel.HomeUiState
@@ -23,18 +24,18 @@ import androidx.compose.material.icons.filled.List
 
 @Composable
 fun HomeScreen(viewModel: HomeViewModel = viewModel(),
-               onNavigateToHistory: () -> Unit) {
+               onNavigateToHistorial: () -> Unit) {
 
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
 
-    val biometricAuthManager = BiometricAuthManager(context as FragmentActivity)
+    val biometricAuth = BiometricAuth(context as FragmentActivity)
 
     val locationManager = LocationManager(context)
 
     val onBiometricSuccess = {
-        viewModel.markAttendance()
+        viewModel.marcarAsistencia()
     }
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -42,7 +43,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel(),
     ) { permissions ->
         if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true) {
 
-            biometricAuthManager.showBiometricPrompt(
+            biometricAuth.showBiometricPrompt(
                 title = "Verificar Asistencia",
                 subtitle = "Confirme su identidad para marcar",
                 onSuccess = onBiometricSuccess,
@@ -64,7 +65,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Button(onClick = onNavigateToHistory) {
+        Button(onClick = onNavigateToHistorial) {
             Icon(Icons.Default.List, contentDescription = "Ver Historial")
             Spacer(Modifier.width(8.dp))
             Text("Ver Mi Historial")
@@ -82,7 +83,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel(),
             Button(
                 onClick = {
                     if (locationManager.hasLocationPermission()) {
-                        biometricAuthManager.showBiometricPrompt(
+                        biometricAuth.showBiometricPrompt(
                             title = "Verificar Asistencia",
                             subtitle = "Confirme su identidad para marcar",
                             onSuccess = onBiometricSuccess,
@@ -113,8 +114,8 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel(),
 private fun HandleUiState(uiState: HomeUiState, viewModel: HomeViewModel) {
     val context = LocalContext.current
 
-    LaunchedEffect(uiState.isAttendanceMarked) {
-        if (uiState.isAttendanceMarked) {
+    LaunchedEffect(uiState.marcajeExitoso) {
+        if (uiState.marcajeExitoso) {
             Toast.makeText(context, "Asistencia registrada con éxito", Toast.LENGTH_LONG).show()
         }
     }
@@ -122,7 +123,7 @@ private fun HandleUiState(uiState: HomeUiState, viewModel: HomeViewModel) {
     LaunchedEffect(uiState.error) {
         uiState.error?.let {
             Toast.makeText(context, it, Toast.LENGTH_LONG).show()
-            viewModel.clearError()
+            viewModel.errorMostrado()
         }
     }
 }

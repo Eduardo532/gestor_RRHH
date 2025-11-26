@@ -7,9 +7,9 @@ class AuthRepository{
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
-    suspend fun login(email: String, password: String): Result<Unit>{
+    suspend fun login(email: String, contrasena: String): Result<Unit>{
         return try{
-            auth.signInWithEmailAndPassword(email,password).await()
+            auth.signInWithEmailAndPassword(email,contrasena).await()
             Result.success(Unit)
         } catch (e : Exception){
             Result.failure(e)

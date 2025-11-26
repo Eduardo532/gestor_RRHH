@@ -1,40 +1,40 @@
 package com.example.gestor_empleados.data.repository
 
-import com.example.gestor_empleados.data.model.Attendance
+import com.example.gestor_empleados.data.model.Asistencia
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.Query // <-- AÑADE ESTA IMPORTACIÓN
 import kotlinx.coroutines.tasks.await
 
-class AttendanceRepository {
+class AsistenciaRepository {
     private val db = FirebaseFirestore.getInstance()
-    private val attendanceCollection = db.collection("asistencia")
+    private val asistenciaCollection = db.collection("asistencia")
 
     private val authRepo = AuthRepository()
 
-    suspend fun registerAttendance(attendance: Attendance): Result<Unit> {
+    suspend fun registrarAsistencia(asistencia: Asistencia): Result<Unit> {
         return try {
-            attendanceCollection.add(attendance).await()
+            asistenciaCollection.add(asistencia).await()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    suspend fun getAttendanceHistory(): Result<List<Attendance>> {
+    suspend fun getHistorialDeAsistencia(): Result<List<Asistencia>> {
         return try {
             val userId = authRepo.getCurrentUserId()
             if (userId == null) {
                 return Result.failure(Exception("Usuario no autenticado"))
             }
 
-            val snapshot = attendanceCollection
+            val snapshot = asistenciaCollection
                 .whereEqualTo("userId", userId)
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .get()
                 .await()
 
-            val history = snapshot.toObjects(Attendance::class.java)
-            Result.success(history)
+            val historial = snapshot.toObjects(Asistencia::class.java)
+            Result.success(historial)
 
         } catch (e: Exception) {
             Result.failure(e)
