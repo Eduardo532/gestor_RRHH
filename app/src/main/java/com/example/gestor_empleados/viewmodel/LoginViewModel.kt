@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import com.example.gestor_empleados.utils.Constants
 
 data class LoginUiState(
     val isloginSuccessful: Boolean = false,
@@ -27,7 +26,7 @@ class LoginViewModel(
 
         val cleanRut = rut.replace(".", "").replace(" ", "")
 
-        val fakeEmail = "$cleanRut${Constants.MOSK_DOMAIN}"
+        val fakeEmail = "$cleanRut@gestor.app"
 
         viewModelScope.launch {
             val result = authRepository.login(fakeEmail, password)
