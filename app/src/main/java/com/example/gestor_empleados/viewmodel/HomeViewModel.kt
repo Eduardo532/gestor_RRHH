@@ -21,11 +21,13 @@ data class HomeUiState(
     val marcajeExitoso: Boolean = false
 )
 
-class HomeViewModel(application: Application) : AndroidViewModel(application) {
+class HomeViewModel(
+    application: Application,
+    private val locationManager: LocationManager = LocationManager(application),
+    private val authRepo: AuthRepository = AuthRepository(),
+    private val asistenciaRepo: AsistenciaRepository = AsistenciaRepository()
 
-    private val locationManager = LocationManager(application)
-    private val authRepo = AuthRepository()
-    private val asistenciaRepo = AsistenciaRepository()
+) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState = _uiState.asStateFlow()
