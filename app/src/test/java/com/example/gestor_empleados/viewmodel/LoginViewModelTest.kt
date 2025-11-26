@@ -10,6 +10,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import io.mockk.checkEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class LoginViewModelTest {
@@ -26,16 +27,24 @@ class LoginViewModelTest {
     @Test
     fun `login exitoso actualiza estado a loginExitoso true`() = runTest {
         // 1. GIVEN (Dado que): El repositorio responde éxito
-        coEvery { authRepository.login(any(), any()) } returns Result.success(Unit)
+        val rutPrueba = "11.111.111-1"
+        val emailEsperado = "11111111-1@gestor.app"
+        val password = "password"
+
+
+        coEvery {
+            authRepository.login(eq(emailEsperado), eq(password))
+        } returns Result.success(Unit)
 
         // Inicializamos el ViewModel inyectando el mock (Nota: necesitarás refactorizar el VM para aceptar el repo en el constructor, ver nota abajo*)
         viewModel = LoginViewModel(authRepository)
 
         // 2. WHEN (Cuando): Llamamos a login
-        viewModel.login("11.111.111-1", "password")
+        viewModel.login(rutPrueba,password)
 
         // 3. THEN (Entonces): El estado debe ser exitoso
         assertTrue(viewModel.uiState.value.loginExitoso)
+
         assertEquals(false, viewModel.uiState.value.isLoading)
     }
 
