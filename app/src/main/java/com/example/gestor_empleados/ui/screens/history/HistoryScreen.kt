@@ -1,4 +1,4 @@
-package com.example.gestor_empleados.ui.screens.historial
+package com.example.gestor_empleados.ui.screens.history
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,18 +29,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.gestor_empleados.data.model.Asistencia
-import com.example.gestor_empleados.viewmodel.HistorialViewModel
+import com.example.gestor_empleados.data.model.Attendance
+import com.example.gestor_empleados.viewmodel.HistoryViewModel
 import com.google.firebase.Timestamp
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-// Función principal de la pantalla
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HistorialScreen(
+fun HistoryScreen(
     onBack: () -> Unit,
-    viewModel: HistorialViewModel = viewModel()
+    viewModel: HistoryViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -69,17 +68,16 @@ fun HistorialScreen(
                 uiState.error != null -> {
                     Text("Error: ${uiState.error}", color = MaterialTheme.colorScheme.error)
                 }
-                uiState.asistencias.isEmpty() -> {
+                uiState.attendances.isEmpty() -> {
                     Text("No tienes marcajes registrados.")
                 }
                 else -> {
-                    // Lista de asistencias
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(16.dp)
                     ) {
-                        items(uiState.asistencias) { asistencia ->
-                            AsistenciaItem(asistencia)
+                        items(uiState.attendances) { asistencia ->
+                            AttendanceItem(asistencia)
                         }
                     }
                 }
@@ -88,9 +86,8 @@ fun HistorialScreen(
     }
 }
 
-// Composable para mostrar cada fila de la lista
 @Composable
-fun AsistenciaItem(asistencia: Asistencia) {
+fun AttendanceItem(attendance: Attendance) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -102,18 +99,18 @@ fun AsistenciaItem(asistencia: Asistencia) {
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = formatTimestamp(asistencia.timestamp, "EEEE dd 'de' MMMM"), // Ej: "Jueves 07 de Noviembre"
+                    text = formatTimestamp(attendance.timestamp, "EEEE dd 'de' MMMM"),
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = "RUT: ${asistencia.rut}",
+                    text = "RUT: ${attendance.rut}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.outline
                 )
             }
             Spacer(Modifier.width(16.dp))
             Text(
-                text = formatTimestamp(asistencia.timestamp, "HH:mm 'hrs'"), // Ej: "09:30 hrs"
+                text = formatTimestamp(attendance.timestamp, "HH:mm 'hrs'"), // Ej: "09:30 hrs"
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -121,7 +118,6 @@ fun AsistenciaItem(asistencia: Asistencia) {
     }
 }
 
-// Función "helper" para convertir la fecha de Firebase a texto legible
 private fun formatTimestamp(timestamp: Timestamp, pattern: String): String {
     val sdf = SimpleDateFormat(pattern, Locale("es", "ES"))
     return sdf.format(timestamp.toDate())

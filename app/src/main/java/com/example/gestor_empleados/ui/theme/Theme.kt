@@ -16,19 +16,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-// Define la paleta de colores para el tema oscuro
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
     secondary = PurpleGrey80,
     tertiary = Pink80
 )
 
-// Define la paleta de colores para el tema claro
+
 private val LightColorScheme = lightColorScheme(
     primary = Purple40,
     secondary = PurpleGrey40,
     tertiary = Pink40,
-    // Otros colores por defecto se pueden sobreescribir aquí, como:
     background = Color(0xFFFFFBFE),
     surface = Color(0xFFFFFBFE),
     onPrimary = Color.White,
@@ -40,9 +38,8 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun GestorEmpleadosTheme(
+fun EmployeeManagerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // El color dinámico está disponible en Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
@@ -63,10 +60,9 @@ fun GestorEmpleadosTheme(
         }
     }
 
-    // Aplica el tema de Material Design
     MaterialTheme(
-        colorScheme = colorScheme, // Aplica nuestra paleta de colores
-        typography = Typography,   // Aplica nuestros estilos de fuente
-        content = content          // Renderiza el contenido de la app que está "dentro" del tema
+        colorScheme = colorScheme,
+        typography = Typography,
+        content = content
     )
 }

@@ -19,8 +19,8 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    LaunchedEffect(uiState.loginExitoso) {
-        if (uiState.loginExitoso) {
+    LaunchedEffect(uiState.isloginSuccessful) {
+        if (uiState.isloginSuccessful) {
             onLoginSuccess()
         }
     }

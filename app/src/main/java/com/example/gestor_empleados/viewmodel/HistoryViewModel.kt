@@ -2,40 +2,40 @@ package com.example.gestor_empleados.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.gestor_empleados.data.model.Asistencia
-import com.example.gestor_empleados.data.repository.AsistenciaRepository
+import com.example.gestor_empleados.data.model.Attendance
+import com.example.gestor_empleados.data.repository.AttendanceRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-data class HistorialUiState(
+data class HistoryUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
-    val asistencias: List<Asistencia> = emptyList()
+    val attendances: List<Attendance> = emptyList()
 )
 
-class HistorialViewModel(
-    private val asistenciaRepo: AsistenciaRepository = AsistenciaRepository()
+class HistoryViewModel(
+    private val attendanceRepository: AttendanceRepository = AttendanceRepository()
 ): ViewModel() {
 
 
-    private val _uiState = MutableStateFlow(HistorialUiState())
+    private val _uiState = MutableStateFlow(HistoryUiState())
     val uiState = _uiState.asStateFlow()
 
     init {
-        cargarHistorial()
+        loadHistory()
     }
 
-    fun cargarHistorial() {
+    fun loadHistory() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
 
-            val resultado = asistenciaRepo.getHistorialDeAsistencia()
+            val result = attendanceRepository.getAttendanceHistory()
 
-            resultado.onSuccess { listaAsistencias ->
+            result.onSuccess { attendanceList ->
                 _uiState.update {
-                    it.copy(isLoading = false, asistencias = listaAsistencias)
+                    it.copy(isLoading = false, attendances = attendanceList)
                 }
             }.onFailure { exception ->
                 _uiState.update {
