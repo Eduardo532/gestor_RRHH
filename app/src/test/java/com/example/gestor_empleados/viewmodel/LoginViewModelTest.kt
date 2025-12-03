@@ -35,7 +35,7 @@ class LoginViewModelTest {
         viewModel.login("11.111.111-1", "password")
 
         // 3. THEN (Entonces): El estado debe ser exitoso
-        assertTrue(viewModel.uiState.value.isloginSuccessful)
+        assertTrue(viewModel.uiState.value.loginExitoso)
         assertEquals(false, viewModel.uiState.value.isLoading)
     }
 
