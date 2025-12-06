@@ -6,13 +6,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.gestor_empleados.ui.screens.history.HistoryScreen
 import com.example.gestor_empleados.ui.screens.home.HomeScreen
-import com.example.gestor_empleados.ui.screens.login.LoginScreen
 import com.example.gestor_empleados.ui.screens.leave.LeaveScreen
+import com.example.gestor_empleados.ui.screens.login.LoginScreen
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(
+    startDestination: String
+) {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "login") {
+
+    NavHost(navController = navController, startDestination = startDestination) {
 
         composable("login") {
             LoginScreen(onLoginSuccess = {
@@ -29,6 +32,11 @@ fun AppNavigation() {
                 },
                 onNavigateToLeave = {
                     navController.navigate("leave_request")
+                },
+                onLogout = {
+                    navController.navigate("login") {
+                        popUpTo("home") { inclusive = true }
+                    }
                 }
             )
         }
@@ -40,9 +48,5 @@ fun AppNavigation() {
         composable("leave_request") {
             LeaveScreen(onBack = { navController.popBackStack() })
         }
-
-
-
-
     }
 }

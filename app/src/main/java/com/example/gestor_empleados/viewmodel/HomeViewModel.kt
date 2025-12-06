@@ -24,7 +24,6 @@ class HomeViewModel @JvmOverloads constructor(
     private val locationManager: LocationManager = LocationManager(application),
     private val authRepo: AuthRepository = AuthRepository(),
     private val attendanceRepo: AttendanceRepository = AttendanceRepository()
-
 ) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -34,14 +33,12 @@ class HomeViewModel @JvmOverloads constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null, isAttendanceMarked = false) }
 
-            // Obtener Ubicación
             val location = locationManager.getCurrentLocation()
             if (location == null) {
                 _uiState.update { it.copy(isLoading = false, error = "No se pudo obtener la ubicación. Revise permisos y GPS.") }
                 return@launch
             }
 
-            // Guardar el registro
             val userId = authRepo.getCurrentUserId()
             if (userId == null) {
                 _uiState.update { it.copy(isLoading = false, error = "Error de usuario. Vuelva a iniciar sesión.") }
@@ -67,6 +64,10 @@ class HomeViewModel @JvmOverloads constructor(
                 }
             }
         }
+    }
+
+    fun logoutUser() {
+        authRepo.logout()
     }
 
     fun clearError() {
