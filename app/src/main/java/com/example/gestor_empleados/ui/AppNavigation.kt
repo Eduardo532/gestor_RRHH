@@ -7,6 +7,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.gestor_empleados.ui.screens.history.HistoryScreen
 import com.example.gestor_empleados.ui.screens.home.HomeScreen
 import com.example.gestor_empleados.ui.screens.login.LoginScreen
+import com.example.gestor_empleados.ui.screens.leave.LeaveScreen
 
 @Composable
 fun AppNavigation() {
@@ -25,16 +26,23 @@ fun AppNavigation() {
             HomeScreen(
                 onNavigateToHistory = {
                     navController.navigate("historial")
+                },
+                onNavigateToLeave = {
+                    navController.navigate("leave_request")
                 }
             )
         }
 
         composable("historial") {
-            HistoryScreen(
-                onBack = {
-                    navController.popBackStack()
-                }
-            )
+            HistoryScreen(onBack = { navController.popBackStack() })
         }
+
+        composable("leave_request") {
+            LeaveScreen(onBack = { navController.popBackStack() })
+        }
+
+
+
+
     }
 }

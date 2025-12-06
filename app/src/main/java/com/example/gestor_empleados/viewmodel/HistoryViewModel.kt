@@ -15,7 +15,7 @@ data class HistoryUiState(
     val attendances: List<Attendance> = emptyList()
 )
 
-class HistoryViewModel(
+class HistoryViewModel @JvmOverloads constructor(
     private val attendanceRepository: AttendanceRepository = AttendanceRepository()
 ): ViewModel() {
 

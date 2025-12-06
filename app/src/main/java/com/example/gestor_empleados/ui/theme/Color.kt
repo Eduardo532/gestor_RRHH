@@ -2,12 +2,19 @@ package com.example.gestor_empleados.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Colores para el tema claro (Light Theme)
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
 
-// Colores para el tema oscuro (Dark Theme)
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+val PrimaryBlue = Color(0xFF5019D2)
+val SecondaryBlue = Color(0xFF64B5F6)
+val TertiaryTeal = Color(0xFF009688)
+
+// Colores Base
+val White = Color(0xFFFFFFFF)
+val Black = Color(0xFF000000)
+val BackgroundLight = Color(0xFFF5F5F5)
+val SurfaceWhite = Color(0xFFFFFFFF)
+val ErrorRed = Color(0xFFB00020)
+
+// Colores para Modo Oscuro (Opcional, pero recomendado)
+val PrimaryBlueDark = Color(0xFF90CAF9)
+val BackgroundDark = Color(0xFF121212)
+val SurfaceDark = Color(0xFF1E1E1E)

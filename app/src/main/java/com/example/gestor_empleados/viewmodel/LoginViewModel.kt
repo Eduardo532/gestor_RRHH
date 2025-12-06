@@ -10,12 +10,12 @@ import kotlinx.coroutines.launch
 import com.example.gestor_empleados.utils.Constants
 
 data class LoginUiState(
-    val isloginSuccessful: Boolean = false,
+    val isLoginSuccessful: Boolean = false,
     val error: String? = null,
     val isLoading: Boolean = false
 )
 
-class LoginViewModel(
+class LoginViewModel @JvmOverloads constructor(
     private val authRepository: AuthRepository = AuthRepository()
 ) : ViewModel() {
 
@@ -33,7 +33,7 @@ class LoginViewModel(
             val result = authRepository.login(fakeEmail, password)
 
             result.onSuccess {
-                _uiState.update { it.copy(isLoading = false, isloginSuccessful = true) }
+                _uiState.update { it.copy(isLoading = false, isLoginSuccessful = true) }
             }.onFailure { exception ->
                 _uiState.update {
                     it.copy(

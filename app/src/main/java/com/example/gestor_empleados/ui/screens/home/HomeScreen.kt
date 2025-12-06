@@ -4,34 +4,36 @@ import android.Manifest
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gestor_empleados.utils.BiometricAuthManager
 import com.example.gestor_empleados.utils.LocationManager
 import com.example.gestor_empleados.viewmodel.HomeViewModel
 import com.example.gestor_empleados.viewmodel.HomeUiState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.List
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = viewModel(),
-               onNavigateToHistory: () -> Unit) {
-
+fun HomeScreen(
+    viewModel: HomeViewModel = viewModel(),
+    onNavigateToHistory: () -> Unit,
+    onNavigateToLeave: () -> Unit
+) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-
-    val biometricAuthManager = BiometricAuthManager(context as FragmentActivity)
-
     val locationManager = LocationManager(context)
+    val biometricAuth = remember { BiometricAuthManager(context as FragmentActivity) }
 
     val onBiometricSuccess = {
         viewModel.markAttendance()
@@ -41,70 +43,117 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel(),
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true) {
-
-            biometricAuthManager.showBiometricPrompt(
-                title = "Verificar Asistencia",
-                subtitle = "Confirme su identidad para marcar",
+            biometricAuth.showBiometricPrompt(
+                title = "Confirmar Identidad",
+                subtitle = "Use su huella para registrar la asistencia",
                 onSuccess = onBiometricSuccess,
-                onError = { errorMsg ->
-                    Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show()
+                onError = { error ->
+                    Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
                 }
             )
         } else {
-            Toast.makeText(context, "Se requiere permiso de ubicación para marcar", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Se requiere ubicación para marcar", Toast.LENGTH_LONG).show()
         }
     }
-
 
     HandleUiState(uiState, viewModel)
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(32.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
 
-        Button(onClick = onNavigateToHistory) {
-            Icon(Icons.Default.List, contentDescription = "Ver Historial")
-            Spacer(Modifier.width(8.dp))
-            Text("Ver Mi Historial")
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Spacer(Modifier.height(32.dp))
+            Text(
+                text = "Control de Asistencia",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Text(
+                text = "Gestione su jornada laboral",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.secondary
+            )
         }
 
-        Spacer(Modifier.height(32.dp))
-        Text("Control de Asistencia", style = MaterialTheme.typography.headlineMedium)
-        Spacer(Modifier.height(16.dp))
-        Text("Presione el botón para marcar su entrada o salida.")
-        Spacer(Modifier.height(48.dp))
-
-        if (uiState.isLoading) {
-            CircularProgressIndicator(modifier = Modifier.size(80.dp))
-        } else {
-            Button(
-                onClick = {
-                    if (locationManager.hasLocationPermission()) {
-                        biometricAuthManager.showBiometricPrompt(
-                            title = "Verificar Asistencia",
-                            subtitle = "Confirme su identidad para marcar",
-                            onSuccess = onBiometricSuccess,
-                            onError = { errorMsg ->
-                                Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show()
-                            }
-                        )
-                    } else {
-                        permissionLauncher.launch(
-                            arrayOf(
-                                Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_COARSE_LOCATION
+        Box(contentAlignment = Alignment.Center) {
+            if (uiState.isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(64.dp),
+                    color = MaterialTheme.colorScheme.primary
+                )
+            } else {
+                Button(
+                    onClick = {
+                        if (locationManager.hasLocationPermission()) {
+                            biometricAuth.showBiometricPrompt(
+                                title = "Confirmar Identidad",
+                                subtitle = "Use su huella para registrar la asistencia",
+                                onSuccess = onBiometricSuccess,
+                                onError = { error ->
+                                    Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+                                }
                             )
+                        } else {
+                            permissionLauncher.launch(
+                                arrayOf(
+                                    Manifest.permission.ACCESS_FINE_LOCATION,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION
+                                )
+                            )
+                        }
+                    },
+                    modifier = Modifier.size(200.dp),
+                    shape = MaterialTheme.shapes.extraLarge,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    ),
+                    elevation = ButtonDefaults.buttonElevation(8.dp)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            imageVector = Icons.Default.CheckCircle,
+                            contentDescription = null,
+                            modifier = Modifier.size(48.dp)
                         )
+                        Spacer(Modifier.height(8.dp))
+                        Text("MARCAR", style = MaterialTheme.typography.headlineSmall)
                     }
-                },
-                modifier = Modifier
-                    .size(200.dp)
-                    .padding(16.dp)
-            ) {
-                Text("Marcar", fontSize = 24.sp)
+                }
             }
+        }
+
+        Column(
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            OutlinedButton(
+                onClick = onNavigateToHistory,
+                modifier = Modifier.fillMaxWidth().height(50.dp)
+            ) {
+                Icon(Icons.Default.List, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text("Ver Mi Historial")
+            }
+
+            Button(
+                onClick = onNavigateToLeave,
+                modifier = Modifier.fillMaxWidth().height(50.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.onSecondary
+                )
+            ) {
+                Icon(Icons.Default.AddCircle, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text("Solicitar Licencia")
+            }
+            Spacer(Modifier.height(32.dp))
         }
     }
 }
@@ -115,7 +164,7 @@ private fun HandleUiState(uiState: HomeUiState, viewModel: HomeViewModel) {
 
     LaunchedEffect(uiState.isAttendanceMarked) {
         if (uiState.isAttendanceMarked) {
-            Toast.makeText(context, "Asistencia registrada con éxito", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "¡Asistencia registrada con éxito!", Toast.LENGTH_LONG).show()
         }
     }
 

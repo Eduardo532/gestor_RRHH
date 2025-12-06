@@ -19,7 +19,7 @@ data class HomeUiState(
     val isAttendanceMarked: Boolean = false
 )
 
-class HomeViewModel(
+class HomeViewModel @JvmOverloads constructor(
     application: Application,
     private val locationManager: LocationManager = LocationManager(application),
     private val authRepo: AuthRepository = AuthRepository(),
