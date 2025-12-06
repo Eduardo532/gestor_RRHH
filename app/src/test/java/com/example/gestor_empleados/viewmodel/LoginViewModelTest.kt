@@ -41,7 +41,7 @@ class LoginViewModelTest {
         viewModel.login(rutPrueba,password)
 
 
-        assertTrue(viewModel.uiState.value.isloginSuccessful)
+        assertTrue(viewModel.uiState.value.isLoginSuccessful)
 
         assertEquals(false, viewModel.uiState.value.isLoading)    }
 }
