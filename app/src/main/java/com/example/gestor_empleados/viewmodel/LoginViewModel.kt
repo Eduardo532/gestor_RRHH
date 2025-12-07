@@ -7,31 +7,33 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.example.gestor_empleados.utils.Constants
 
 data class LoginUiState(
-    val loginExitoso: Boolean = false,
+    val isLoginSuccessful: Boolean = false,
     val error: String? = null,
     val isLoading: Boolean = false
 )
 
-class LoginViewModel : ViewModel() {
-    private val authRepository = AuthRepository()
+class LoginViewModel @JvmOverloads constructor(
+    private val authRepository: AuthRepository = AuthRepository()
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState = _uiState.asStateFlow()
 
-    fun login(rut: String, contrasena: String) {
+    fun login(rut: String, password: String) {
         _uiState.update { it.copy(isLoading = true, error = null) }
 
-        val rutLimpio = rut.replace(".", "").replace(" ", "")
+        val cleanRut = rut.replace(".", "").replace(" ", "")
 
-        val emailFalso = "$rutLimpio@gestor.app"
+        val fakeEmail = "$cleanRut${Constants.MOSK_DOMAIN}"
 
         viewModelScope.launch {
-            val resultado = authRepository.login(emailFalso, contrasena)
+            val result = authRepository.login(fakeEmail, password)
 
-            resultado.onSuccess {
-                _uiState.update { it.copy(isLoading = false, loginExitoso = true) }
+            result.onSuccess {
+                _uiState.update { it.copy(isLoading = false, isLoginSuccessful = true) }
             }.onFailure { exception ->
                 _uiState.update {
                     it.copy(
