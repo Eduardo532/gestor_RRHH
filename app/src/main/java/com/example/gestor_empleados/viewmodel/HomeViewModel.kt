@@ -1,11 +1,13 @@
 package com.example.gestor_empleados.viewmodel
 
 import android.app.Application
+import android.location.Location
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.gestor_empleados.data.model.Attendance
 import com.example.gestor_empleados.data.repository.AttendanceRepository
 import com.example.gestor_empleados.data.repository.AuthRepository
+import com.example.gestor_empleados.utils.Constants
 import com.example.gestor_empleados.utils.LocationManager
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,6 +26,7 @@ class HomeViewModel @JvmOverloads constructor(
     private val locationManager: LocationManager = LocationManager(application),
     private val authRepo: AuthRepository = AuthRepository(),
     private val attendanceRepo: AttendanceRepository = AttendanceRepository()
+
 ) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -33,9 +36,26 @@ class HomeViewModel @JvmOverloads constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null, isAttendanceMarked = false) }
 
-            val location = locationManager.getCurrentLocation()
-            if (location == null) {
+            val currentLocation = locationManager.getCurrentLocation()
+            if (currentLocation == null) {
                 _uiState.update { it.copy(isLoading = false, error = "No se pudo obtener la ubicación. Revise permisos y GPS.") }
+                return@launch
+            }
+
+            val workplaceLocation = Location("workplace_provider").apply {
+                latitude = Constants.WORKPLACE_LATITUDE
+                longitude = Constants.WORKPLACE_LONGITUDE
+            }
+
+            val distanceInMeters = currentLocation.distanceTo(workplaceLocation)
+
+            if (distanceInMeters > Constants.MAX_DISTANCE_METERS) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = "Está fuera del rango permitido. Distancia: ${distanceInMeters.toInt()}m"
+                    )
+                }
                 return@launch
             }
 
@@ -51,8 +71,8 @@ class HomeViewModel @JvmOverloads constructor(
                 userId = userId,
                 rut = userRut,
                 timestamp = Timestamp.now(),
-                latitude = location.latitude,
-                longitude = location.longitude
+                latitude = currentLocation.latitude,
+                longitude = currentLocation.longitude
             )
 
             val result = attendanceRepo.registerAttendance(newChekIn)
