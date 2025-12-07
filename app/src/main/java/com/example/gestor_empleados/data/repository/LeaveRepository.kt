@@ -3,6 +3,7 @@ package com.example.gestor_empleados.data.repository
 import com.example.gestor_empleados.data.model.LeaveRequest
 import com.example.gestor_empleados.utils.Constants
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import kotlinx.coroutines.tasks.await
 
 class LeaveRepository {
@@ -37,4 +38,21 @@ class LeaveRepository {
         }
     }
 
+    suspend fun getUserLeaves(): Result<List<LeaveRequest>> {
+        return try {
+            val userId = authRepo.getCurrentUserId()
+                ?: return Result.failure(Exception("Usuario no autenticado"))
+
+            val snapshot = leavesCollection
+                .whereEqualTo("userId", userId)
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .get()
+                .await()
+
+            val leaves = snapshot.toObjects(LeaveRequest::class.java)
+            Result.success(leaves)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
