@@ -8,6 +8,7 @@ import com.example.gestor_empleados.data.model.Attendance
 import com.example.gestor_empleados.data.repository.AttendanceRepository
 import com.example.gestor_empleados.data.repository.AuthRepository
 import com.example.gestor_empleados.utils.Constants
+import com.example.gestor_empleados.utils.FileLogger
 import com.example.gestor_empleados.utils.LocationManager
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,7 +27,6 @@ class HomeViewModel @JvmOverloads constructor(
     private val locationManager: LocationManager = LocationManager(application),
     private val authRepo: AuthRepository = AuthRepository(),
     private val attendanceRepo: AttendanceRepository = AttendanceRepository()
-
 ) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -38,6 +38,7 @@ class HomeViewModel @JvmOverloads constructor(
 
             val currentLocation = locationManager.getCurrentLocation()
             if (currentLocation == null) {
+                FileLogger.logEvent(getApplication(), "ERROR", "Mark Attendance: Location is null")
                 _uiState.update { it.copy(isLoading = false, error = "No se pudo obtener la ubicación. Revise permisos y GPS.") }
                 return@launch
             }
@@ -49,7 +50,10 @@ class HomeViewModel @JvmOverloads constructor(
 
             val distanceInMeters = currentLocation.distanceTo(workplaceLocation)
 
+            FileLogger.logEvent(getApplication(), "INFO", "Geofence Check: Distance to workplace is $distanceInMeters meters")
+
             if (distanceInMeters > Constants.MAX_DISTANCE_METERS) {
+                FileLogger.logEvent(getApplication(), "WARNING", "Mark Attendance Denied: Outside range ($distanceInMeters m)")
                 _uiState.update {
                     it.copy(
                         isLoading = false,
@@ -61,13 +65,14 @@ class HomeViewModel @JvmOverloads constructor(
 
             val userId = authRepo.getCurrentUserId()
             if (userId == null) {
+                FileLogger.logEvent(getApplication(), "ERROR", "Mark Attendance: User ID is null")
                 _uiState.update { it.copy(isLoading = false, error = "Error de usuario. Vuelva a iniciar sesión.") }
                 return@launch
             }
 
             val userRut = authRepo.getCurrentUserEmail()?.split("@")?.get(0) ?: "SIN_RUT"
 
-            val newChekIn = Attendance(
+            val newCheckIn = Attendance(
                 userId = userId,
                 rut = userRut,
                 timestamp = Timestamp.now(),
@@ -75,10 +80,12 @@ class HomeViewModel @JvmOverloads constructor(
                 longitude = currentLocation.longitude
             )
 
-            val result = attendanceRepo.registerAttendance(newChekIn)
+            val result = attendanceRepo.registerAttendance(newCheckIn)
             result.onSuccess {
+                FileLogger.logEvent(getApplication(), "SUCCESS", "Attendance registered for user: $userRut")
                 _uiState.update { it.copy(isLoading = false, isAttendanceMarked = true) }
             }.onFailure { exception ->
+                FileLogger.logEvent(getApplication(), "ERROR", "Firestore Error: ${exception.message}")
                 _uiState.update {
                     it.copy(isLoading = false, error = "Error al guardar: ${exception.message}")
                 }
@@ -87,6 +94,7 @@ class HomeViewModel @JvmOverloads constructor(
     }
 
     fun logoutUser() {
+        FileLogger.logEvent(getApplication(), "AUTH", "User logged out")
         authRepo.logout()
     }
 
