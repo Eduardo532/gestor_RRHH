@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.gestor_empleados.data.model.Attendance
 import com.example.gestor_empleados.data.repository.AttendanceRepository
 import com.example.gestor_empleados.data.repository.AuthRepository
-import com.example.gestor_empleados.utils.Constants
+import com.example.gestor_empleados.data.repository.ConfigRepository
 import com.example.gestor_empleados.utils.FileLogger
 import com.example.gestor_empleados.utils.LocationManager
 import com.google.firebase.Timestamp
@@ -26,7 +26,8 @@ class HomeViewModel @JvmOverloads constructor(
     application: Application,
     private val locationManager: LocationManager = LocationManager(application),
     private val authRepo: AuthRepository = AuthRepository(),
-    private val attendanceRepo: AttendanceRepository = AttendanceRepository()
+    private val attendanceRepo: AttendanceRepository = AttendanceRepository(),
+    private val configRepo: ConfigRepository = ConfigRepository()
 ) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -43,21 +44,32 @@ class HomeViewModel @JvmOverloads constructor(
                 return@launch
             }
 
-            val workplaceLocation = Location("workplace_provider").apply {
-                latitude = Constants.WORKPLACE_LATITUDE
-                longitude = Constants.WORKPLACE_LONGITUDE
+            val configResult = configRepo.getWorkplaceConfig()
+
+            if (configResult.isFailure) {
+                val errorMsg = configResult.exceptionOrNull()?.message ?: "Error de configuración"
+                FileLogger.logEvent(getApplication(), "ERROR", "Config Fetch Failed: $errorMsg")
+                _uiState.update { it.copy(isLoading = false, error = "Error al obtener configuración de empresa: $errorMsg") }
+                return@launch
+            }
+
+            val workplaceConfig = configResult.getOrNull()!!
+
+            val workplaceLocation = Location("firebase_provider").apply {
+                latitude = workplaceConfig.latitud
+                longitude = workplaceConfig.longitud
             }
 
             val distanceInMeters = currentLocation.distanceTo(workplaceLocation)
 
-            FileLogger.logEvent(getApplication(), "INFO", "Geofence Check: Distance to workplace is $distanceInMeters meters")
+            FileLogger.logEvent(getApplication(), "INFO", "Geofence Check: User at $distanceInMeters m from workplace (Max allowed: ${workplaceConfig.radio_permitido} m)")
 
-            if (distanceInMeters > Constants.MAX_DISTANCE_METERS) {
-                FileLogger.logEvent(getApplication(), "WARNING", "Mark Attendance Denied: Outside range ($distanceInMeters m)")
+            if (distanceInMeters > workplaceConfig.radio_permitido) {
+                FileLogger.logEvent(getApplication(), "WARNING", "Mark Attendance Denied: Outside dynamic range")
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        error = "Está fuera del rango permitido. Distancia: ${distanceInMeters.toInt()}m"
+                        error = "Está fuera del rango permitido (${workplaceConfig.radio_permitido.toInt()}m). Distancia actual: ${distanceInMeters.toInt()}m"
                     )
                 }
                 return@launch
