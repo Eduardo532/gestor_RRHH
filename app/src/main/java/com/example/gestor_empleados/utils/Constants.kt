@@ -5,4 +5,21 @@ object Constants {
     const val COLLECTION_LEAVES = "licencias"
 
     const val MOSK_DOMAIN = "@gestor.app"
+
+    /*
+    latitud prueba = -39.105
+    longitud prueba = -72.673
+
+    latitud ufro = -38.748
+    longitud ufro = -72.617
+
+    -38.751
+    -72.616
+     */
+
+    const val WORKPLACE_LATITUDE = -38.751
+    const val WORKPLACE_LONGITUDE = -72.616
+
+    const val MAX_DISTANCE_METERS= 100.0f
+
 }

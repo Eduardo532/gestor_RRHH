@@ -17,10 +17,13 @@ import com.example.gestor_empleados.data.repository.AuthRepository
 import com.example.gestor_empleados.ui.AppNavigation
 import com.example.gestor_empleados.ui.theme.EmployeeManagerTheme
 import com.example.gestor_empleados.utils.BiometricAuthManager
+import com.example.gestor_empleados.utils.FileLogger
 
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        FileLogger.logEvent(this, "SYSTEM", "Application Started")
 
         val authRepository = AuthRepository()
 
@@ -32,16 +35,12 @@ class MainActivity : FragmentActivity() {
                 ) {
                     var destination by remember { mutableStateOf<String?>(null) }
                     var showAuthError by remember { mutableStateOf(false) }
+                    var authTrigger by remember { mutableIntStateOf(0) }
 
-                    // Usamos un contador para "disparar" el reintento
-                    var authTrigger by remember { mutableStateOf(0) }
-
-                    // Recordamos el manager para que no se pierda entre recomposiciones
                     val biometricAuth = remember { BiometricAuthManager(this@MainActivity) }
 
-                    // Este efecto se ejecuta al inicio (Unit) y cada vez que authTrigger cambia
                     LaunchedEffect(authTrigger) {
-                        showAuthError = false // Ocultamos error para mostrar carga
+                        showAuthError = false
 
                         val currentUser = authRepository.getCurrentUserId()
 
@@ -52,9 +51,11 @@ class MainActivity : FragmentActivity() {
                                 title = "Acceso Seguro",
                                 subtitle = "Confirme su huella para ingresar",
                                 onSuccess = {
+                                    FileLogger.logEvent(this@MainActivity, "AUTH", "Biometric success for user: $currentUser")
                                     destination = "home"
                                 },
                                 onError = {
+                                    FileLogger.logEvent(this@MainActivity, "AUTH", "Biometric failed or cancelled")
                                     showAuthError = true
                                 }
                             )
@@ -93,7 +94,7 @@ class MainActivity : FragmentActivity() {
                             Spacer(Modifier.height(32.dp))
 
                             Button(
-                                onClick = { authTrigger++ }, // Simplemente incrementamos para relanzar el efecto
+                                onClick = { authTrigger++ },
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Icon(Icons.Default.Refresh, contentDescription = null)
