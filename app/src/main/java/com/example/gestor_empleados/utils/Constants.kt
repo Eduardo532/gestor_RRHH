@@ -17,9 +17,4 @@ object Constants {
     -72.616
      */
 
-    const val WORKPLACE_LATITUDE = -38.751
-    const val WORKPLACE_LONGITUDE = -72.616
-
-    const val MAX_DISTANCE_METERS= 100.0f
-
 }
