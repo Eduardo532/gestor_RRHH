@@ -1,9 +1,11 @@
 package com.example.gestor_empleados.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.gestor_empleados.data.model.LeaveRequest
 import com.example.gestor_empleados.data.repository.LeaveRepository
+import com.example.gestor_empleados.utils.FileLogger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -16,9 +18,10 @@ data class LeaveUiState(
     val leaves: List<LeaveRequest> = emptyList()
 )
 
-class LeaveViewModel(
+class LeaveViewModel @JvmOverloads constructor(
+    application: Application,
     private val leaveRepository: LeaveRepository = LeaveRepository()
-) : ViewModel() {
+) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(LeaveUiState())
     val uiState = _uiState.asStateFlow()
@@ -51,9 +54,11 @@ class LeaveViewModel(
             val result = leaveRepository.requestLeave(reason)
 
             result.onSuccess {
+                FileLogger.logEvent(getApplication(), "TRANSACTION", "New leave request submitted: $reason")
                 loadLeaves()
                 _uiState.update { it.copy(isLoading = false, isSuccess = true) }
             }.onFailure { exception ->
+                FileLogger.logEvent(getApplication(), "ERROR", "Leave request failed: ${exception.message}")
                 _uiState.update { it.copy(isLoading = false, error = exception.message) }
             }
         }
