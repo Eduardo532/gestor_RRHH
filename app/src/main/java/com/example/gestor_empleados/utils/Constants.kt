@@ -12,10 +12,13 @@ object Constants {
 
     latitud ufro = -38.748
     longitud ufro = -72.617
+
+    -38.751
+    -72.616
      */
 
-    const val WORKPLACE_LATITUDE = -39.105
-    const val WORKPLACE_LONGITUDE = -72.673
+    const val WORKPLACE_LATITUDE = -38.751
+    const val WORKPLACE_LONGITUDE = -72.616
 
     const val MAX_DISTANCE_METERS= 100.0f
 
